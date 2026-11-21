@@ -1,20 +1,27 @@
 import { TICK_SECONDS } from "../battle";
 import { describeEffects, getItem } from "../items";
 import { BACKPACK_COLS } from "../shop";
-import type { Backpack as BackpackSlots, ItemDef } from "../types";
+import type { RunState, ItemDef } from "../types";
+import { sellBlocker } from "../run";
 
 /** Hover text for a backpack slot: name, effects and cooldown. */
 const tooltip = (item: ItemDef) =>
   [item.name, ...describeEffects(item.effects).map(({ label }) => label), `⏱️ every ${item.cooldown * TICK_SECONDS}s`].join("\n");
 
-export function Backpack({ backpack }: { backpack: BackpackSlots }) {
+interface BackpackProps {
+  run: RunState;
+  onSell: (slotUid: string) => void;
+}
+
+export function Backpack({ run, onSell }: BackpackProps) {
   return (
     <section className="rounded-lg border border-panel-edge bg-panel p-4">
       <h2 className="font-display text-xl font-bold">🎒 Backpack</h2>
       <p className="mb-3 text-sm text-muted">Hover an item to see its stats.</p>
       <ul className="grid gap-2" style={{ gridTemplateColumns: `repeat(${BACKPACK_COLS}, minmax(0, 1fr))` }}>
-        {backpack.map((slot, index) => {
+        {run.backpack.map((slot, index) => {
           const item = slot ? getItem(slot.itemId) : null;
+          const blocker = item ? sellBlocker(run, Math.floor(item.price/2)) : null;
           return (
             <li
               key={slot?.uid ?? `empty-${index}`}
@@ -31,6 +38,15 @@ export function Backpack({ backpack }: { backpack: BackpackSlots }) {
                     {item.icon}
                   </span>
                   <span className="text-center text-xs leading-tight">{item.name}</span>
+                  <button
+                  type="button"
+                  disabled={blocker !== null}
+                  onClick={() => onSell(slot!.uid)}
+                  title={blocker ?? ""}
+                  className="mt-auto rounded-md bg-gold px-3 py-1.5 text-xs font-bold text-ink hover:brightness-110 disabled:bg-panel-edge disabled:text-muted"
+                >
+                  {`Sell for ${Math.floor(item.price/2)} 🪙`}
+                </button>
                 </>
               )}
             </li>

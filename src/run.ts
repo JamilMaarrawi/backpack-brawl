@@ -1,5 +1,5 @@
 import { getItem } from "./items";
-import { BACKPACK_SIZE, rollShop } from "./shop";
+import { BACKPACK_SIZE, rollShop, itemIdsOf } from "./shop";
 import type { RunState, Side } from "./types";
 
 export const START_GOLD = 10;
@@ -30,6 +30,16 @@ export function buyBlocker(state: RunState, offerIndex: number): string | null {
   const itemId = state.shop[offerIndex];
   if (!itemId) return "Already sold";
   if (state.gold < getItem(itemId).price) return "Not enough gold";
+  if (firstFreeSlot(state) === -1) return "Backpack full";
+  return null;
+}
+
+export function sellBlocker(state: RunState, sellingPrice: number): string | null {
+  if (itemIdsOf(state.backpack).length > 1) return null;
+  const prices = state.shop
+    .filter((id) => id !== null)
+    .map((id) => getItem(id).price);
+  if (Math.min(...prices) > state.gold + sellingPrice) return "You would end up without any items";
   return null;
 }
 
@@ -43,6 +53,12 @@ export function buyItem(state: RunState, offerIndex: number): RunState {
   const shop = [...state.shop];
   shop[offerIndex] = null;
   return { ...state, gold: state.gold - getItem(itemId).price, shop, backpack, nextUid: state.nextUid + 1 };
+}
+
+export function sellItem(state: RunState, uid: string): RunState {
+  const item = state.backpack.find(slot => slot && slot.uid === uid);
+  const backpack = state.backpack.map(slot => slot && slot.uid === uid ? null : slot);
+  return { ...state, backpack, gold: state.gold + Math.floor(getItem(item!.itemId).price / 2) };
 }
 
 export type RunOutcome = "victory" | "defeat";

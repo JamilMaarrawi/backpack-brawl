@@ -1,6 +1,6 @@
 import { TICK_SECONDS, MAX_TICKS } from "../battle";
-import { getItem } from "../items";
-import { STATUS_HELP } from "../rules";
+import { getItem, SETS } from "../items";
+import { SET_HELP, STATUS_HELP } from "../rules";
 import type { BattleEvent, BattleEventKind, BattleReplay, Fighter, FighterSnapshot, Side } from "../types";
 
 interface BattleViewProps {
@@ -96,11 +96,12 @@ const EVENT_COLOUR: Partial<Record<BattleEventKind, string>> = {
   damage: "text-life",
   poison: "text-poison",
   "poison-tick": "text-poison",
+  "burn-tick": "text-burn",
   heal: "text-heal",
 };
 
 function LogLine({ event }: { event: BattleEvent }) {
-  const icon = event.kind === "poison-tick" ? "☠️" : getItem(event.itemId).icon;
+  const icon = event.kind === "poison-tick" ? "☠️" : event.kind === "burn-tick" ? "🔥" : getItem(event.itemId).icon;
   const byPlayer = event.source === "player";
   const text = (
     <span className={`flex gap-1.5 ${byPlayer ? "" : "flex-row-reverse text-right"} ${EVENT_COLOUR[event.kind] ?? ""}`}>
@@ -126,7 +127,7 @@ interface FighterPanelProps {
 }
 
 function FighterPanel({ side, icon, fighter, snapshot }: FighterPanelProps) {
-  const { hp, maxHp, block, poison } = snapshot;
+  const { hp, maxHp, block, poison, burn } = snapshot;
   const knockedOut = hp <= 0;
 
   return (
@@ -146,11 +147,28 @@ function FighterPanel({ side, icon, fighter, snapshot }: FighterPanelProps) {
       <p title={STATUS_HELP.poison} className={`cursor-help text-xs ${poison > 0 ? "text-poison" : "text-muted"}`} aria-label="Poison stacks">
         ☠️ Poison: <span className="font-mono">{poison}</span>
       </p>
+      <p title={STATUS_HELP.burn} className={`cursor-help text-xs ${burn > 0 ? "text-burn" : "text-muted"}`} aria-label="Burn stacks">
+        🔥 Burn: <span className="font-mono">{burn}</span>
+      </p>
+      {fighter.sets.length > 0 && (
+        <ul className="flex flex-wrap gap-1 text-xs" aria-label="Active set bonuses">
+          {fighter.sets.map((set) => (
+            <li key={set} title={SET_HELP[set]} className="cursor-help rounded bg-gold/20 px-1.5 py-0.5 font-bold text-gold">
+              {SETS[set].icon} {SETS[set].name} active
+            </li>
+          ))}
+        </ul>
+      )}
 
       <ul className="flex flex-wrap gap-1" aria-label="Items">
         {fighter.items.map((item, index) => (
-          <li key={index} title={item.name} className="rounded bg-ink/50 px-1.5 py-0.5 text-xl">
+          <li key={index} title={item.set ? `${item.name} (${SETS[item.set].name} set)` : item.name} className="relative rounded bg-ink/50 px-1.5 py-0.5 text-xl">
             {item.icon}
+            {item.set && (
+              <span className="absolute -right-2 -top-2 rounded-full bg-ink/80 px-0.5 text-sm" aria-hidden>
+                {SETS[item.set].icon}
+              </span>
+            )}
           </li>
         ))}
       </ul>

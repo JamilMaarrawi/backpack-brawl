@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 import { TICK_SECONDS } from "../battle";
-import { describeEffects } from "../items";
-import { COOLDOWN_HELP, EFFECT_HELP } from "../rules";
-import type { ItemDef } from "../types";
+import { describeEffects, SETS } from "../items";
+import { COOLDOWN_HELP, EFFECT_HELP, SET_HELP } from "../rules";
+import type { ItemDef, SetId } from "../types";
 
 interface ItemCardProps {
   item: ItemDef;
@@ -19,6 +19,7 @@ export function ItemCard({ item, children }: ItemCardProps) {
         </span>
         <div className="min-w-0 flex-1">
           <h3 className="truncate font-display font-bold">{item.name}</h3>
+          {item.set && <SetBadge set={item.set} />}
         </div>
       </div>
       <ul className="flex flex-wrap gap-x-3 gap-y-1 text-sm">
@@ -33,6 +34,15 @@ export function ItemCard({ item, children }: ItemCardProps) {
       </ul>
       {children}
     </article>
+  );
+}
+
+/** Small set label with the set bonus as tooltip. */
+export function SetBadge({ set }: { set: SetId }) {
+  return (
+    <span title={SET_HELP[set]} className="cursor-help rounded bg-ink/60 px-1.5 py-0.5 text-sm font-bold text-parchment">
+      {SETS[set].icon} {SETS[set].name}
+    </span>
   );
 }
 

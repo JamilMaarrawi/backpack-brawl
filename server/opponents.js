@@ -9,7 +9,7 @@ export const OPPONENTS = [
   { id: "tollgate-ogre", name: "Tollgate Ogre", icon: "👹", hp: 44, items: ["hunting-bow", "chipped-dagger", "venom-dagger", "oak-buckler"] },
   { id: "rusted-knight", name: "Rusted Knight", icon: "🪖", hp: 46, items: ["iron-cleaver", "hunting-bow", "chipped-dagger", "oak-buckler", "healing-herb"] },
   { id: "pit-gladiator", name: "Pit Gladiator", icon: "🦁", hp: 50, items: ["iron-cleaver", "hunting-bow", "chipped-dagger", "oak-buckler", "pot-lid"] },
-  { id: "ash-golem", name: "Ash Golem", icon: "🗿", hp: 56, items: ["iron-cleaver", "hunting-bow", "spiked-shield", "thorn-bow", "oak-buckler"] },
+  { id: "ash-golem", name: "Ash Golem", icon: "🗿", hp: 56, items: ["iron-cleaver", "ember-blade", "spiked-shield", "thorn-bow", "oak-buckler", "torch"] },
   { id: "hollow-king", name: "Hollow King", icon: "👑", hp: 64, items: ["iron-cleaver", "hunting-bow", "hunting-bow", "spiked-shield", "oak-buckler", "health-potion"] },
 ];
 

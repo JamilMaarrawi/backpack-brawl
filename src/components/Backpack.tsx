@@ -1,6 +1,8 @@
 import { TICK_SECONDS } from "../battle";
-import { describeEffects, getItem } from "../items";
-import { BACKPACK_COLS } from "../shop";
+import { describeEffects, getItem, setProgress, SETS } from "../items";
+import { SET_HELP } from "../rules";
+import { BACKPACK_COLS, itemIdsOf } from "../shop";
+import { SetBadge } from "./ItemCard";
 import type { RunState, ItemDef } from "../types";
 import { sellBlocker } from "../run";
 
@@ -18,6 +20,13 @@ export function Backpack({ run, onSell }: BackpackProps) {
     <section className="rounded-lg border border-panel-edge bg-panel p-4">
       <h2 className="font-display text-xl font-bold">🎒 Backpack</h2>
       <p className="mb-3 text-sm text-muted">Hover an item to see its stats.</p>
+      <ul className="mb-3 flex flex-col gap-1 text-sm" aria-label="Sets">
+        {setProgress(itemIdsOf(run.backpack)).map(({ set, count, size, active }) => (
+          <li key={set} title={SET_HELP[set]} className={`cursor-help ${active ? "font-bold text-gold" : "text-muted"}`}>
+            {SETS[set].icon} {SETS[set].name} {count}/{size}{active ? " – active" : ""}
+          </li>
+        ))}
+      </ul>
       <ul className="grid gap-2" style={{ gridTemplateColumns: `repeat(${BACKPACK_COLS}, minmax(0, 1fr))` }}>
         {run.backpack.map((slot, index) => {
           const item = slot ? getItem(slot.itemId) : null;
@@ -38,6 +47,7 @@ export function Backpack({ run, onSell }: BackpackProps) {
                     {item.icon}
                   </span>
                   <span className="text-center text-xs leading-tight">{item.name}</span>
+                  {item.set && <SetBadge set={item.set} />}
                   <button
                   type="button"
                   disabled={blocker !== null}

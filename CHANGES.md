@@ -74,4 +74,57 @@ From round 3 on, some opponents use the new items, so the player meets poison an
 
 ### battle.test.ts
 
-I added Vitest tests that check poison stacking, that stacks never decay, the tick interval, that the poison tick resolves before items so new stacks wait for the next interval, that block is ignored, that poison ticks are logged as `"poison-tick"`, the poison stack cap, and the heal cap. I also added a test for a knockout caused by a poison tick, and a determinism test that checks the same fighters always give an identical `BattleResult`.
+I added Vitest tests that check poison stacking, that stacks never decay, the tick interval, that the poison tick resolves before items so new stacks wait for the next interval, that block is ignored, that poison ticks are logged as `"poison-tick"`, the poison stack cap, and the heal cap. I also added a test for a knockout caused by a poison tick, and a determinism test that checks the same fighters always give an identical `BattleResult`. Another test checks that a fighter brought to 0 HP by a poison tick is saved if a heal fires in the same tick, because the knockout check runs at the end of the tick.
+
+---
+## Changes in the B4 (Item sets & Burn feature) commit
+
+### types.ts
+
+I added the type `SetId` (`"fire"` or `"guard"`) and an optional `set` field to `ItemDef` and `FighterItem`, so every item can belong to a set. `Fighter` now has `sets`, the sets whose bonus is active for that fighter. `FighterSnapshot` got a `burn` field for the burn counter, and `BattleEventKind` got `"burn-tick"`, like `"poison-tick"`.
+
+### items.ts
+
+I added `SETS`, which defines every set with its name and icon in one place, and `SET_THRESHOLD` (a bonus is active with 2 or more items of a set). I added three Fire items: Torch, Ember Blade and Fire Bomb. Oak Buckler, Pot Lid, Spiked Shield and Troll Hide now belong to the Guard set.
+
+I added `setProgress`, which returns for every set how many of its items are in a list of item ids, the set size and whether the bonus is active. It counts different items only, so two Torches don't activate the Fire set. The shop and the battle both use it.
+
+### battle.ts
+
+I added the constants `BURN_STACKS_PER_HIT` (3), `BURN_DAMAGE_PER_STACK` (1), `BURN_DECAY` (1), `BURN_MAX_STACKS` (10), `BURN_TICK_SOURCE` and `GUARD_EXTRA_BLOCK` (2).
+
+`buildFighter` now computes the active sets from the fighter's items. Because both the player and the opponents are built with it, set bonuses work for both sides.
+
+In `resolveItem`, every hit of a Fire item adds burn stacks to the enemy while the Fire set is active, up to `BURN_MAX_STACKS`. Wasted stacks are shown in the log, e.g. "+3 burn, 10 stacks (max)". The cap is needed because with 2 or more Fire items, more stacks are added per tick than decay removes. While the Guard set is active, every block effect gives `GUARD_EXTRA_BLOCK` extra block.
+
+I added a small `stacks` helper, so the poison and burn log messages say "1 stack" for one stack and "stacks" otherwise.
+
+I added `applyBurn`. It runs every tick, after the poison tick and before the items resolve. Unlike poison, block absorbs burn damage first. After each burn tick, the stacks drop by `BURN_DECAY` until they reach 0. Burn deals more damage than poison because it ticks every tick instead of every 2. It emits a `"burn-tick"` event, credited to the side that applied the burn.
+
+### rules.ts
+
+I added a burn text, a tooltip per set in `SET_HELP`, a `burn` text in `STATUS_HELP`, a burn rule in the battle section and a new "Sets" section in the rules panel. All texts are built from the constants.
+
+### ItemCard.tsx
+
+I added a small `SetBadge` component, which shows the set icon and name with the set bonus as tooltip. Shop items show it. The badge uses a slightly bigger, bold and bright text, so it is easy to see.
+
+### Backpack.tsx
+
+Every backpack item shows its set badge. Above the slots, every set is listed with its progress, e.g. "🔥 Fire 2/3 – active", so the player sees in the shop which bonuses are active.
+
+### BattleView.tsx
+
+Each fighter panel now shows a burn counter and the active set bonuses. Items show their set icon in the corner, on a small dark background so it stands out. Burn lines in the combat log get their own colour and the 🔥 icon.
+
+### index.css
+
+I added the `burn` colour token.
+
+### opponents.js
+
+The Ash Golem now has two Fire items (Ember Blade and Torch) and still two Guard items, so the player meets both set bonuses.
+
+### battle.test.ts
+
+I added `sets: []` to the test fighters and a `burner` helper for a fighter with an active Fire set. I added tests for the set bonus only at 2 or more different items, the Guard bonus, set bonuses for opponents, burn absorbed by block, burn decaying to 0, burn ticking every tick after poison, the burn stack cap, and determinism with sets and burn.

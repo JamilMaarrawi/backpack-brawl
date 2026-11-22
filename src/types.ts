@@ -1,6 +1,10 @@
 export interface ItemEffects {
   damage?: number;
   block?: number;
+  /** Poison stacks added to the enemy. */
+  poison?: number;
+  /** HP restored to the own fighter, capped at max HP. */
+  heal?: number;
 }
 
 export interface ItemDef {
@@ -55,9 +59,10 @@ export interface FighterSnapshot {
   hp: number;
   maxHp: number;
   block: number;
+  poison: number;
 }
 
-export type BattleEventKind = "damage" | "block";
+export type BattleEventKind = "damage" | "block" | "poison" | "poison-tick" | "heal";
 
 export interface BattleEvent {
   tick: number;
@@ -67,7 +72,7 @@ export interface BattleEvent {
   target: Side;
   kind: BattleEventKind;
   amount: number;
-  /** Item that triggered the event. */
+  /** Item that triggered the event; `POISON_TICK_SOURCE` for poison ticks. */
   itemId: string;
   message: string;
 }

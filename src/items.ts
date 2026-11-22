@@ -17,6 +17,10 @@ export function getItem(id: string): ItemDef {
   return item;
 }
 
+export function getHighestPrice(): number {
+  return Math.max(...CATALOG.map(item => item.price));
+}
+
 const EFFECT_LABELS: [keyof ItemEffects, (n: number) => string][] = [
   ["damage", (n) => `⚔️ ${n} dmg`],
   ["block", (n) => `🛡️ +${n} block`],

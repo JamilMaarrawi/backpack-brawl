@@ -1,14 +1,17 @@
 import { getItem } from "../items";
-import { buyBlocker } from "../run";
+import { buyBlocker, reRollBlocker, REROLL_COST } from "../run";
 import type { RunState } from "../types";
 import { ItemCard } from "./ItemCard";
 
 interface ShopProps {
   run: RunState;
   onBuy: (offerIndex: number) => void;
+  onReRoll: () => void;
 }
 
-export function Shop({ run, onBuy }: ShopProps) {
+export function Shop({ run, onBuy, onReRoll }: ShopProps) {
+  const rerollBlocker = reRollBlocker(run);
+
   return (
     <section className="rounded-lg border border-panel-edge bg-panel p-4">
       <h2 className="mb-3 font-display text-xl font-bold">🏪 Shop</h2>
@@ -40,6 +43,15 @@ export function Shop({ run, onBuy }: ShopProps) {
           );
         })}
       </ul>
+      <button
+        type="button"
+        onClick={onReRoll}
+        disabled={rerollBlocker !== null}
+        title={rerollBlocker ?? undefined}
+        className="mt-3 w-full rounded-md bg-gold px-3 py-1.5 font-bold text-ink hover:brightness-110 disabled:bg-panel-edge disabled:text-muted"
+      >
+        {`Re-roll for ${REROLL_COST} 🪙`}
+      </button>
     </section>
   );
 }

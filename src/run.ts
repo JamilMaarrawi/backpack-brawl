@@ -1,4 +1,4 @@
-import { getItem } from "./items";
+import { getHighestPrice, getItem } from "./items";
 import { BACKPACK_SIZE, rollShop, itemIdsOf } from "./shop";
 import type { RunState, Side } from "./types";
 
@@ -6,6 +6,7 @@ export const START_GOLD = 10;
 export const START_LIVES = 3;
 export const WINS_TO_VICTORY = 5;
 export const GOLD_PER_ROUND = 5;
+export const REROLL_COST = 1;
 
 export function newRun(seed: number): RunState {
   const roll = rollShop(seed);
@@ -57,8 +58,10 @@ export function buyItem(state: RunState, offerIndex: number): RunState {
 
 export function sellItem(state: RunState, uid: string): RunState {
   const item = state.backpack.find(slot => slot && slot.uid === uid);
+  const sellingPrice = Math.floor(getItem(item!.itemId).price / 2);
+  if (sellBlocker(state, sellingPrice) !== null) return state;
   const backpack = state.backpack.map(slot => slot && slot.uid === uid ? null : slot);
-  return { ...state, backpack, gold: state.gold + Math.floor(getItem(item!.itemId).price / 2) };
+  return { ...state, backpack, gold: state.gold + sellingPrice };
 }
 
 export type RunOutcome = "victory" | "defeat";
@@ -74,6 +77,18 @@ export function runOutcome(state: RunState): RunOutcome | null {
 export function startNextRound(state: RunState): RunState {
   const roll = rollShop(state.seed);
   return { ...state, round: state.round + 1, gold: state.gold + GOLD_PER_ROUND, seed: roll.seed, shop: roll.offers };
+}
+
+export function reRollShop(state: RunState): RunState {
+  if (reRollBlocker(state) !== null) return state;
+  const roll = rollShop(state.seed);
+  return { ...state, shop: roll.offers, seed: roll.seed , gold: state.gold - REROLL_COST};
+}
+
+export function reRollBlocker(state: RunState): string | null {
+  if (itemIdsOf(state.backpack).length === 0 && state.gold <= getHighestPrice()) return "you might end up without any items";
+  if (state.gold < REROLL_COST) return "Not enough gold to re-roll";
+  return null;
 }
 
 /** Records a battle (win → +1 win, loss → −1 life) and moves on to the next round unless the run is over. */

@@ -19,3 +19,20 @@ The action itself takes a `RunState` and returns an updated `RunState`. It calls
 I added `sellItem`, which removes the selected item from the backpack and adds half its price, rounded down, to the gold. I also added `sellBlocker`, which checks the selling conditions and returns a reason or `null`. Finally, I modified `buyBlocker` to block purchases when the backpack is full.
 
 ---
+## Changes in the B1 (ReRoll Shop feature) commit
+
+### Shop.tsx
+
+I added the reroll button which calls the `onReRoll` function. It is disabled when `reRollBlocker` returns a reason.
+
+### ShopPage.tsx
+
+I added `handleReRoll` which updates the GameState and passed it to `Shop`.
+
+### Items.tsx
+
+I added `getHighestPrice` which returns the price of the most expensive item in the catalog.
+
+### run.tsx
+
+I added `reRollShop` and `reRollBlocker`. I also modified `sellItem` to check for its blocker.

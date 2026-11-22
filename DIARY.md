@@ -15,4 +15,12 @@ Before I implemented it following the current logic, I tried creating a disallow
 Finally i created the "Diary" file and made this entry and i created the "Changes" file and explained the changes in my first commit.
 
 ---
+## jamil - 21.11.2026
 
+I completed the missing part of B1 wich is the reroll feature
+
+Here i thought about hardcoding everything and just put 1 everywhere the reroll cost is needed. but for the sake of bestpractice i decided to do it the right way.
+
+I also implemented a blocker. first I though about just checking if player has enough gold to reroll inside the button. But then it came to my mind that if a player is really unlucky he might get 4 offers of the most expensive item after the reroll. In that case he would have enough money to reroll, but if his bag is empty and he has less gold than the most expensive item then he could end up without any items. I thought about instead of creating all these blockers with all these conditions just so the player always has atleast one item, I could just add a restart button. But in the end I decided to go the extra mile and create a blocker that checks these conditions.
+
+---

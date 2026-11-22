@@ -128,3 +128,34 @@ The Ash Golem now has two Fire items (Ember Blade and Torch) and still two Guard
 ### battle.test.ts
 
 I added `sets: []` to the test fighters and a `burner` helper for a fighter with an active Fire set. I added tests for the set bonus only at 2 or more different items, the Guard bonus, set bonuses for opponents, burn absorbed by block, burn decaying to 0, burn ticking every tick after poison, the burn stack cap, and determinism with sets and burn.
+
+---
+## Changes in the B5 (Resilient matchmaking feature) commit
+
+### types.ts
+
+I added `searchId` to `GameState`. It identifies the latest opponent search, so a response can be matched to the search it belongs to.
+
+### game.ts
+
+`newGame` starts with `searchId: 0`. `fightBlocker` now returns "Searching…" while a search is running, so the button is disabled and a second search can't be started.
+
+`startSearch` now takes a `searchId` and only stores it. The id is created in one place, in `ShopPage`.
+
+I added `isCurrentSearch`, which checks that the phase is `"searching"` and the id matches. `startBattle` and `searchFailed` now take the `searchId` and change nothing if this check fails. `startBattle` also checks that the opponent is for the current round. This way a slow, duplicate or late response can never start a battle twice, start one outside a search or for an old search, or bring back an error after the battle has started.
+
+`searchFailed` now sets the phase back to `"shop"`, so the shop is usable again and the player can retry. Before, the game stayed stuck in `"searching"`.
+
+I added `SEARCH_FAILED_MESSAGE` ("The arena couldn't find you an opponent right now."). It is understandable for the player and fits every kind of failure: the server is down, it refuses the request, or it sends bad data.
+
+### ShopPage.tsx
+
+`handleFindOpponent` creates the new id (`game.searchId + 1`) and passes it to `startSearch`, `startBattle` and `searchFailed`. On a failure the player sees `SEARCH_FAILED_MESSAGE`, and the technical error is written to the console.
+
+### api.ts
+
+I added `parseOpponent`, which `fetchOpponent` uses to check the response. An opponent needs a name, a positive `hp`, a number as `round` and an array of known item ids as `items`. If something is wrong, it throws an error, so the existing `catch` in `ShopPage` calls `searchFailed`. Without this check, an unknown item id would crash the game when the battle starts.
+
+### game.test.ts
+
+I added tests that check: a failure returns to the shop with an error, a retry works after a failure, no second search can start while searching, a late success after a failure is ignored, a duplicate response does not start a second battle, a response for a wrong round or an old `searchId` is ignored, and the battle result is applied only once. I also added tests for `parseOpponent` with a valid opponent and several invalid ones.

@@ -4,7 +4,7 @@ import { FightBar } from "../components/FightBar";
 import { RulesPanel } from "../components/RulesPanel";
 import { RunHeader } from "../components/RunHeader";
 import { Shop } from "../components/Shop";
-import { fightBlocker, searchFailed, startBattle, startSearch, updateRun } from "../game";
+import { fightBlocker, SEARCH_FAILED_MESSAGE, searchFailed, startBattle, startSearch, updateRun } from "../game";
 import { buyItem, sellItem, reRollShop } from "../run";
 import { useActiveGame } from "../state/GameContext";
 
@@ -27,13 +27,15 @@ export function ShopPage() {
   // Once the opponent is found the phase becomes "battle" and RequireRoute redirects to the battle page.
   async function handleFindOpponent() {
     if (fightBlocker(game) !== null) return;
-    update(startSearch);
+    // Responses are matched to this id, so a slow or duplicate response can't start a battle later.
+    const searchId = game.searchId + 1;
+    update((current) => startSearch(current, searchId));
     try {
       const opponent = await fetchOpponent(run.round);
-      update((current) => startBattle(current, opponent));
+      update((current) => startBattle(current, searchId, opponent));
     } catch (error) {
-      const message = error instanceof Error ? error.message : "Opponent search failed.";
-      update((current) => searchFailed(current, message));
+      console.error("Opponent search failed:", error);
+      update((current) => searchFailed(current, searchId, SEARCH_FAILED_MESSAGE));
     }
   }
 

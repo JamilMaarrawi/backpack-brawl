@@ -9,7 +9,7 @@ import type { BattleReplay, GameState, Opponent, RunState } from "./types";
  */
 
 export function newGame(seed: number): GameState {
-  return { phase: "shop", run: newRun(seed), battle: null, error: null };
+  return { phase: "shop", run: newRun(seed), battle: null, error: null, searchId: 0 };
 }
 
 /** Applies a shop/backpack action; only allowed while shopping. */
@@ -21,21 +21,35 @@ export function updateRun(game: GameState, action: (run: RunState) => RunState):
 
 /** Why the player can't look for an opponent right now, or `null` if they can. */
 export function fightBlocker(game: GameState): string | null {
+  if (game.phase === "searching") return "Searching…";
   if (itemIdsOf(game.run.backpack).length === 0) return "Buy at least one item first";
   return null;
 }
 
-export function startSearch(game: GameState): GameState {
+/** Shown in the shop when the opponent search fails. */
+export const SEARCH_FAILED_MESSAGE = "The arena couldn't find you an opponent right now.";
+
+/** Starts the opponent search `searchId`; only responses for this id are accepted later. */
+export function startSearch(game: GameState, searchId: number): GameState {
   if (fightBlocker(game) !== null) return game;
-  return { ...game, phase: "searching", error: null };
+  return { ...game, phase: "searching", error: null, searchId };
 }
 
-export function searchFailed(game: GameState, error: string): GameState {
-  return { ...game, error };
+/** True while `searchId` is the search that is still running; late, duplicate and old responses fail this. */
+const isCurrentSearch = (game: GameState, searchId: number) => game.phase === "searching" && game.searchId === searchId;
+
+/** Ends the running search with an error and returns to a usable shop. */
+export function searchFailed(game: GameState, searchId: number, error: string): GameState {
+  if (!isCurrentSearch(game, searchId)) return game;
+  return { ...game, phase: "shop", error };
 }
 
-/** Simulates the battle against `opponent` and starts its replay at the first frame. */
-export function startBattle(game: GameState, opponent: Opponent): GameState {
+/**
+ * Simulates the battle against `opponent` and starts its replay at the first frame.
+ * Only for the running search and the current round.
+ */
+export function startBattle(game: GameState, searchId: number, opponent: Opponent): GameState {
+  if (!isCurrentSearch(game, searchId) || opponent.round !== game.run.round) return game;
   const player = buildPlayerFighter(game.run.backpack);
   const enemy = buildOpponentFighter(opponent);
   const result = simulateBattle(player, enemy);

@@ -134,4 +134,6 @@ export interface GameState {
   battle: BattleReplay | null;
   /** Last opponent-search error, shown in the shop. */
   error: string | null;
+  /** Id of the latest opponent search; responses for any other id are ignored. */
+  searchId: number;
 }

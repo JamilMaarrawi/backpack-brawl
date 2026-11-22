@@ -38,6 +38,21 @@ I added `getHighestPrice` which returns the price of the most expensive item in 
 I added `reRollShop` and `reRollBlocker`. I also modified `sellItem` to check for its blocker.
 
 ---
+## Changes in the B2 (Backpack arrangement feature) commit
+
+### Backpack.tsx
+
+I added `onMove` and drag handlers. `draggedUid` tracks the dragged item, which is highlighted while the other slots pulse to show the possible destinations. Dropping calls `onMove`; ending or cancelling the drag clears the selection.
+
+### ShopPage.tsx
+
+I added `handleMove` and passed it to `Backpack`. It calls `moveItem` through `updateRun`, so moves are only applied during the shop phase.
+
+### run.ts
+
+I added `moveItem`, which finds the item by UID and swaps its slot with the destination, whether it is occupied or empty. Invalid moves and moves to the same slot leave the state unchanged.
+
+---
 ## Changes in the B3 (Poison & Heal feature) commit
 
 ### types.ts

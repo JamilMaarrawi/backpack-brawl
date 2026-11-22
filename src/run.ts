@@ -64,6 +64,15 @@ export function sellItem(state: RunState, uid: string): RunState {
   return { ...state, backpack, gold: state.gold + sellingPrice };
 }
 
+export function moveItem(state: RunState, uid: string, to: number): RunState {
+  const from = state.backpack.findIndex(slot => slot?.uid === uid);
+  if (from === -1 || to < 0 || to >= state.backpack.length || from === to) return state;
+
+  const backpack = [...state.backpack];
+  [backpack[from], backpack[to]] = [backpack[to], backpack[from]];
+  return { ...state, backpack };
+}
+
 export type RunOutcome = "victory" | "defeat";
 
 /** `victory` / `defeat` once the run is over, otherwise `null`. */

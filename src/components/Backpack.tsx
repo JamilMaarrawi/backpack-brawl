@@ -5,6 +5,7 @@ import { BACKPACK_COLS, itemIdsOf } from "../shop";
 import { SetBadge } from "./ItemCard";
 import type { RunState, ItemDef } from "../types";
 import { sellBlocker } from "../run";
+import { useState } from "react";
 
 /** Hover text for a backpack slot: name, effects and cooldown. */
 const tooltip = (item: ItemDef) =>
@@ -13,9 +14,11 @@ const tooltip = (item: ItemDef) =>
 interface BackpackProps {
   run: RunState;
   onSell: (slotUid: string) => void;
+  onMove: (slotUid: string, to: number) => void;
 }
 
-export function Backpack({ run, onSell }: BackpackProps) {
+export function Backpack({ run, onSell, onMove }: BackpackProps) {
+  const [draggedUid, setDraggedUid] = useState<string | null>(null);
   return (
     <section className="rounded-lg border border-panel-edge bg-panel p-4">
       <h2 className="font-display text-xl font-bold">🎒 Backpack</h2>
@@ -38,8 +41,29 @@ export function Backpack({ run, onSell }: BackpackProps) {
               aria-label={item ? item.name : `Empty slot ${index + 1}`}
               className={[
                 "flex aspect-square flex-col items-center justify-center gap-1 rounded-md border-2 p-1",
-                item ? "cursor-help border-gold/40 bg-ink/40" : "border-dashed border-panel-edge",
+                item ? "cursor-help border-gold/40" : "border-dashed border-panel-edge",
+                draggedUid !== null && slot?.uid !== draggedUid ? "bg-gold/30 border-dashed ring-2 ring-gold motion-safe:animate-pulse" : "",
+                draggedUid !== null && slot?.uid === draggedUid? "ring-4 ring-yellow-400 shadow-lg shadow-yellow-400/80" : "",
               ].join(" ")}
+              /* Dragging logic starts here */
+              draggable={slot !== null}
+              onDragStart={() => {
+                setDraggedUid(slot?.uid ?? null);
+              }}
+              onDragOver={event => {
+                if (draggedUid !== null) event.preventDefault();
+              }}
+              onDrop={event => {
+                event.preventDefault();
+                if (draggedUid !== null) {
+                  onMove(draggedUid, index);
+                  setDraggedUid(null);
+                }
+              }}
+              onDragEnd={() => {
+                setDraggedUid(null);
+              }}
+              /* ----------------------------- */
             >
               {item && (
                 <>

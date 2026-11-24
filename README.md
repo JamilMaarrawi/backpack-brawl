@@ -35,6 +35,8 @@ Press **Find opponent** to request this round's opponent from the local API. The
 
 Once the opponent arrives, the whole battle is simulated at once and then replayed on screen, one step every 250 ms. **Skip** jumps straight to the end. The result is applied to the run when the replay reaches its last step; the button below the result then leads to the next round's shop or to the end screen.
 
+After a refresh, an interrupted search restarts for the same round and a battle replay continues from its saved frame.
+
 Battle time runs in **ticks of 0.5 s**:
 
 - Every item has a **cooldown** in ticks. Each tick, every item charges by one. When the charge reaches the cooldown, the item fires and starts charging again.

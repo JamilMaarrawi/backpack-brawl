@@ -174,3 +174,26 @@ I added `parseOpponent`, which `fetchOpponent` uses to check the response. An op
 ### game.test.ts
 
 I added tests that check: a failure returns to the shop with an error, a retry works after a failure, no second search can start while searching, a late success after a failure is ignored, a duplicate response does not start a second battle, a response for a wrong round or an old `searchId` is ignored, and the battle result is applied only once. I also added tests for `parseOpponent` with a valid opponent and several invalid ones.
+
+---
+## Changes in the B6 (Save and resume feature) commit
+
+### ShopPage.tsx
+
+`handleFindOpponent` checks whether the page is being left during a search. If the request fails because the page is being refreshed, it does not save a search failure, so the saved game stays in the searching phase.
+
+### GameProvider.tsx
+
+I added saving the game to browser `localStorage` before updating the displayed state. A ref keeps the latest game available between React renders.
+
+When the page loads, the saved game is parsed and checked with `isGameValid` and its helper functions before it is restored. The checks cover the run, shop, backpack, phase and battle replay. Malformed or invalid data returns the player to the start screen.
+
+If the restored game is searching, the opponent request starts again for the same round and search ID. The effect also checks whether the page is being left and ignores responses or errors from an interrupted request.
+
+### GameProvider.test.tsx
+
+I added tests for valid saved states, invalid run data, completed battles and corrupted replay data.
+
+### README.md
+
+I added the refresh policy for searches and battle replays.

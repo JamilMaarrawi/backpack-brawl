@@ -34,12 +34,22 @@ export function ShopPage() {
     // Responses are matched to this id, so a slow or duplicate response can't start a battle later.
     const searchId = game.searchId + 1;
     update((current) => startSearch(current, searchId));
+
+    // Catch the case where the user leaves the page before the opponent is found.
+    let leaving = false;
+    const onLeave = () => { leaving = true; };
+    window.addEventListener("beforeunload", onLeave);
+
     try {
       const opponent = await fetchOpponent(run.round);
       update((current) => startBattle(current, searchId, opponent));
     } catch (error) {
-      console.error("Opponent search failed:", error);
-      update((current) => searchFailed(current, searchId, SEARCH_FAILED_MESSAGE));
+      if (!leaving) {
+        console.error("Opponent search failed:", error);
+        update((current) => searchFailed(current, searchId, SEARCH_FAILED_MESSAGE));
+      }
+    } finally {
+      window.removeEventListener("beforeunload", onLeave);
     }
   }
 

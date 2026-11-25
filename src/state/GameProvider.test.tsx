@@ -9,7 +9,7 @@ const opponent: Opponent = {
 };
 
 function searchingGame(): GameState {
-  const game = newGame(1);
+  const game = newGame(1, "test-game");
   game.run.shop[0] = "chipped-dagger";
   return startSearch(updateRun(game, run => buyItem(run, 0)), 1);
 }
@@ -21,7 +21,7 @@ describe("isGameValid", () => {
     const searching = searchingGame();
     const battle = startBattle(searching, searching.searchId, opponent);
     const completed = skipReplay(battle);
-    for (const game of [newGame(1), searching, battle, completed, leaveBattle(completed)]) {
+    for (const game of [newGame(1, "test-game"), searching, battle, completed, leaveBattle(completed)]) {
       expect(isGameValid(saved(game))).toBe(true);
     }
   });

@@ -70,7 +70,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
 
   const value: GameContextValue = {
     game,
-    startNewRun: () => save(newGame(randomSeed())),
+    startNewRun: () => save(newGame(randomSeed(), crypto.randomUUID())),
     update,
   };
 
@@ -86,6 +86,7 @@ export function isGameValid(value: unknown): value is GameState {
   // Phase, search ID and displayed error.
   if (value.phase !== "shop" && value.phase !== "searching" && value.phase !== "battle" && value.phase !== "finished") return false;
   if (!isWholeNumber(value.searchId) || (value.error !== null && typeof value.error !== "string")) return false;
+  if (typeof value.gameId !== "string" || !value.gameId.trim() || value.gameId.length > 100) return false;
 
   // Round, gold, wins and lives must describe a possible score.
   if (!isWholeNumber(run.round) || run.round < 1 ||

@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { ROUTES } from "../game";
 import { START_GOLD, START_LIVES, WINS_TO_VICTORY } from "../run";
 import { useGame } from "../state/GameContext";
@@ -28,6 +28,9 @@ export function StartPage() {
       <button type="button" onClick={handleNewRun} autoFocus className="rounded-md bg-gold px-5 py-2 font-display font-bold text-ink hover:brightness-110">
         🎒 New run
       </button>
+      <Link to={ROUTES.leaderboard} className="text-sm font-bold text-gold underline-offset-4 hover:underline">
+        🏆 Hall of Fame
+      </Link>
     </section>
   );
 }

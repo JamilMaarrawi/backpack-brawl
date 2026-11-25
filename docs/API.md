@@ -1,6 +1,6 @@
 # Backpack Brawl API
 
-The local API is a small Express server in `server/index.js`. It listens on port 4200 (override with the `PORT` environment variable). During Vite development, `/api` is proxied to it, so the frontend uses relative URLs such as `/api/opponents?round=1`. All responses are JSON. The server keeps no state: restarting it changes nothing about the answers.
+The local API is a small Express server in `server/index.js`. It listens on port 4200 (override with the `PORT` environment variable). During Vite development, `/api` is proxied to it, so the frontend uses relative URLs such as `/api/opponents?round=1`. All responses are JSON. Submitted leaderboard entries are saved in `server/leaderboard.json` and persist across server restarts.
 
 ## `GET /api/health`
 
@@ -63,13 +63,29 @@ Every error response has the shape:
 
 An invalid `round` is reported as 400 even when failure is forced. All responses from this endpoint, errors included, arrive after the configured delay.
 
+## `POST /api/leaderboard`
+
+Submit a finished run as JSON:
+
+```json
+{ "gameId": "run-123", "browserId": "browser-123", "name": "Alex", "wins": 5, "losses": 1 }
+```
+
+Both IDs must be non-empty strings of at most 100 characters. The name must be non-empty after trimming and at most 40 characters. A finished run has exactly 5 wins and 0–2 losses, or exactly 3 losses and 0–4 wins. Names do not need to be unique. Validation and file storage are handled in `server/leaderboard.js`.
+
+A new entry returns status 201 with the submitted fields and a server-generated `submittedAt` timestamp. Submitting an existing game ID returns 409. Invalid submissions return 400, and a storage failure returns 500; a run that was not saved can be retried. For testing, `?fail=true` or `API_FAIL=true` returns 503 without saving the run. Invalid submissions still return 400. Errors have the form `{ "error": "human-readable explanation" }`.
+
+## `GET /api/leaderboard`
+
+Returns all saved entries as a JSON array, ranked by most wins, fewest losses, then earliest submission. `?fail=true` or `API_FAIL=true` returns status 503 for testing. A file read or parse failure returns status 500.
+
 ## Environment variables
 
 | Variable | Effect |
 |---|---|
 | `PORT` | Port to listen on (default 4200). The Vite proxy expects 4200. |
 | `API_LATENCY` | Default delay in milliseconds when a request has no `latency` parameter. |
-| `API_FAIL` | `true` makes every opponent request fail with 503. |
+| `API_FAIL` | `true` makes opponent requests, leaderboard reads and valid submissions fail with 503. |
 
 Example: `API_FAIL=true pnpm server`.
 

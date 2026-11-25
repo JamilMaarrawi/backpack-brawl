@@ -197,3 +197,34 @@ I added tests for valid saved states, invalid run data, completed battles and co
 ### README.md
 
 I added the refresh policy for searches and battle replays.
+
+---
+## Changes in the B7 (Leaderboard feature) commit
+
+### ResultPage.tsx
+
+I added a name field and submit button beside the run result. A successful submission opens the leaderboard; if submission fails, the name stays in the form so the player can retry.
+
+### LeaderboardPage.tsx
+
+I added the leaderboard view with loading, empty and error states, plus a retry button. Entries show their rank, name, wins, losses and submission time. Runs from the current browser are highlighted, and the list scrolls within a fixed-height area.
+
+### api.ts
+
+I added `submitRun` and `fetchLeaderboard`. They call the API and report errors; leaderboard responses are checked before being returned to the page.
+
+### game.ts and types.ts
+
+Each new run gets a unique `gameId`, which is saved with the game and used to prevent duplicate submissions.
+
+### server/index.js and leaderboard.js
+
+I added `POST /api/leaderboard` and `GET /api/leaderboard`. Submissions are validated, duplicate game IDs are rejected, and entries are saved to a JSON file that persists across server restarts. The list is ordered by wins, then losses, then submission time. Both endpoints support `?fail=true` and `API_FAIL=true` for testing.
+
+### App.tsx and StartPage.tsx
+
+I added the standalone leaderboard route and a Hall of Fame link on the start page.
+
+### docs/API.md
+
+I documented the leaderboard endpoints, their request and response behavior, validation, sorting and failure options.

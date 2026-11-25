@@ -130,6 +130,8 @@ export interface BattleReplay {
 export interface GameState {
   phase: Phase;
   run: RunState;
+  /** Unique identity for this run. */
+  gameId: string;
   /** Set while `phase === "battle"`. */
   battle: BattleReplay | null;
   /** Last opponent-search error, shown in the shop. */

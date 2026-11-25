@@ -5,7 +5,7 @@ import type { GameState, Opponent } from "./types";
 
 /** A new game with one item in the backpack, so a search may start. */
 function readyGame(): GameState {
-  const game = newGame(1);
+  const game = newGame(1, "test-game");
   const backpack = game.run.backpack.map((_, i) => (i === 0 ? { uid: "a", itemId: "chipped-dagger" } : null));
   return { ...game, run: { ...game.run, backpack } };
 }

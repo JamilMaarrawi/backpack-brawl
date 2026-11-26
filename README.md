@@ -20,6 +20,8 @@ A run is a series of rounds. Every round you shop, then fight one opponent.
 
 A won battle gives +1 win, a lost battle costs one life. The run ends with a victory screen after the fifth win, or a game-over screen when the last life is gone. Unspent gold and the whole backpack carry over from round to round. Opponents get tougher every round.
 
+On the result screen, enter a name to submit the finished run to the local hall of fame. If submission fails, you can retry without retyping the name.
+
 ### Shop and backpack
 
 - The shop shows **4 offers**, rolled from the catalog at the start of every round. The same offer may appear more than once.
@@ -34,6 +36,8 @@ Shop rolls are driven by a seeded random number generator stored in the run stat
 Press **Find opponent** to request this round's opponent from the local API. The request is deliberately slow, so there is a short "searching" phase. While searching, the shop and the backpack are locked.
 
 Once the opponent arrives, the whole battle is simulated at once and then replayed on screen, one step every 250 ms. **Skip** jumps straight to the end. The result is applied to the run when the replay reaches its last step; the button below the result then leads to the next round's shop or to the end screen.
+
+After a refresh, an interrupted search restarts for the same round and a battle replay continues from its saved frame.
 
 Battle time runs in **ticks of 0.5 s**:
 

@@ -11,6 +11,7 @@ node_modules
 dist
 dist-ssr
 *.local
+server/leaderboard.json.tmp
 
 # Editor directories and files
 .vscode/*

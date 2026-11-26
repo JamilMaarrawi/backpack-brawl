@@ -1,4 +1,5 @@
 import { createBrowserRouter, Navigate, RouterProvider } from "react-router";
+import { LeaderboardPage } from "./pages/LeaderboardPage";
 import { ROUTES } from "./game";
 import { BattlePage } from "./pages/BattlePage";
 import { Layout } from "./pages/Layout";
@@ -17,6 +18,7 @@ const router = createBrowserRouter([
       { path: ROUTES.shop, element: <RequireRoute route={ROUTES.shop}><ShopPage /></RequireRoute> },
       { path: ROUTES.battle, element: <RequireRoute route={ROUTES.battle}><BattlePage /></RequireRoute> },
       { path: ROUTES.result, element: <RequireRoute route={ROUTES.result}><ResultPage /></RequireRoute> },
+      { path: ROUTES.leaderboard, element: <LeaderboardPage /> },
       { path: "*", element: <Navigate to={ROUTES.start} replace /> },
     ],
   },

@@ -5,7 +5,7 @@ import { RulesPanel } from "../components/RulesPanel";
 import { RunHeader } from "../components/RunHeader";
 import { Shop } from "../components/Shop";
 import { fightBlocker, SEARCH_FAILED_MESSAGE, searchFailed, startBattle, startSearch, updateRun } from "../game";
-import { buyItem, sellItem, reRollShop } from "../run";
+import { buyItem, sellItem, reRollShop, moveItem } from "../run";
 import { useActiveGame } from "../state/GameContext";
 
 export function ShopPage() {
@@ -24,18 +24,32 @@ export function ShopPage() {
     update((current) => updateRun(current, (currentRun) => reRollShop(currentRun)));
   }
 
+  function handleMove(slotUid: string, to: number) {
+    update((current) => updateRun(current, (currentRun) => moveItem(currentRun, slotUid, to)));
+  }
+
   // Once the opponent is found the phase becomes "battle" and RequireRoute redirects to the battle page.
   async function handleFindOpponent() {
     if (fightBlocker(game) !== null) return;
     // Responses are matched to this id, so a slow or duplicate response can't start a battle later.
     const searchId = game.searchId + 1;
     update((current) => startSearch(current, searchId));
+
+    // Catch the case where the user leaves the page before the opponent is found.
+    let leaving = false;
+    const onLeave = () => { leaving = true; };
+    window.addEventListener("beforeunload", onLeave);
+
     try {
       const opponent = await fetchOpponent(run.round);
       update((current) => startBattle(current, searchId, opponent));
     } catch (error) {
-      console.error("Opponent search failed:", error);
-      update((current) => searchFailed(current, searchId, SEARCH_FAILED_MESSAGE));
+      if (!leaving) {
+        console.error("Opponent search failed:", error);
+        update((current) => searchFailed(current, searchId, SEARCH_FAILED_MESSAGE));
+      }
+    } finally {
+      window.removeEventListener("beforeunload", onLeave);
     }
   }
 
@@ -47,7 +61,7 @@ export function ShopPage() {
       {/* While searching, the whole shop/backpack area is disabled so the fighting build can't change. */}
       <fieldset disabled={phase !== "shop"} className="grid min-w-0 gap-4 disabled:opacity-60 lg:grid-cols-[1fr_16rem_18rem]">
         <Shop run={run} onBuy={handleBuy} onReRoll={handleReRoll}/>
-        <Backpack run={run} onSell={handleSell} />
+        <Backpack run={run} onSell={handleSell} onMove={handleMove}/>
         <aside className="flex flex-col gap-4">
           <RulesPanel open={run.round === 1} />
         </aside>

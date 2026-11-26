@@ -1,0 +1,50 @@
+[
+  {
+    "gameId": "b8e505a8-b253-4c12-8c7f-0e30fe58d762",
+    "browserId": "233cbca0-b464-444a-ad37-8b067eab8b75",
+    "wins": 0,
+    "losses": 3,
+    "name": "test",
+    "submittedAt": "2026-11-25T08:41:34.065Z"
+  },
+  {
+    "gameId": "b8e5f039-1ae5-4aab-94d0-eacd352124dd",
+    "browserId": "233cbca0-b464-444a-ad37-8b067eab8b75",
+    "wins": 1,
+    "losses": 3,
+    "name": "test2",
+    "submittedAt": "2026-11-25T08:44:19.811Z"
+  },
+  {
+    "gameId": "b8e5f039-1ae5-4aab-94d0-eacd354754dd",
+    "browserId": "233cbca0-b464-444a-ad37-8b0674568b75",
+    "wins": 1,
+    "losses": 3,
+    "name": "test3",
+    "submittedAt": "2026-11-25T08:45:19.811Z"
+  },
+  {
+    "gameId": "b8e505a8-b253-4c12-8c7f-0e30fe123762",
+    "browserId": "233cbca0-b464-444a-ad37-8b06756b8b75",
+    "wins": 0,
+    "losses": 3,
+    "name": "test4",
+    "submittedAt": "2026-11-25T08:46:34.065Z"
+  },
+  {
+    "gameId": "b8e505a8-b253-4c12-8c7f-0e389758d762",
+    "browserId": "233cbca0-b464-144a-ad37-8b067eab8b75",
+    "wins": 0,
+    "losses": 3,
+    "name": "test5",
+    "submittedAt": "2026-11-25T08:47:34.065Z"
+  },
+  {
+    "gameId": "c76fb73a-8dc2-42d2-bd6f-79bc46ddb2ef",
+    "browserId": "233cbca0-b464-444a-ad37-8b067eab8b75",
+    "wins": 5,
+    "losses": 0,
+    "name": "jamil",
+    "submittedAt": "2026-11-25T09:32:47.159Z"
+  }
+]
